@@ -18,6 +18,8 @@ namespace API.Tests
 {
     public class FunctionTest
     {
+        // DynamoDBEvent firing Lambda test:
+        /*
         [Fact]
         public void TestFunction()
         {
@@ -49,5 +51,6 @@ namespace API.Tests
             var testLogger = context.Logger as TestLambdaLogger;
 			Assert.Contains("Stream processing complete", testLogger.Buffer.ToString());
         }  
+        */
     }
 }
