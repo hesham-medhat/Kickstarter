@@ -12,5 +12,5 @@
   "function-runtime": "dotnetcore3.1",
   "function-memory-size": 256,
   "function-timeout": 30,
-  "function-handler": "API::API.Function::FunctionHandler"
+  "function-handler": "API::API.Function::TestLambdaFunction"
 }
