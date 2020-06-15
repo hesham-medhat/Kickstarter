@@ -18,7 +18,7 @@ namespace API
     {
         private static AmazonDynamoDBClient _dynamoDBClient = new AmazonDynamoDBClient();
 
-        public async void TestLambdaFunction (APIGatewayProxyRequest inputRequest, ILambdaContext context)
+        public async Task TestLambdaFunction (APIGatewayProxyRequest inputRequest, ILambdaContext context)
         {
             context.Logger.LogLine($"Beginning to process event: {inputRequest.Path}");
 
