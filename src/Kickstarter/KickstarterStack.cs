@@ -2,6 +2,7 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.RDS;
+using Amazon.CDK.AWS.APIGateway;
 
 namespace Kickstarter
 {
@@ -9,7 +10,7 @@ namespace Kickstarter
     {
         internal KickstarterStack(Construct scope, string id, IStackProps props = null) : base(scope, id, props)
         {
-            // NO-SQL Dynamo Tables
+            // No-SQL Dynamo Tables
             ITableProps postsTableProps = new TableProps()
             {
                 BillingMode = BillingMode.PAY_PER_REQUEST,
@@ -35,13 +36,16 @@ namespace Kickstarter
                 },
                 MultiAz = false,
                 AutoMinorVersionUpgrade = false,
-                AllocatedStorage = 20,
+                AllocatedStorage = 25,
                 StorageType = StorageType.GP2,
                 BackupRetention = Duration.Days(3),
                 DeletionProtection = false,
                 MasterUsername = "admin",
+                MasterUserPassword = new SecretValue("password"),
                 DatabaseName = "kickstarter",
-                Port = 3306
+                Port = 3306,
+                RemovalPolicy = RemovalPolicy.DESTROY,
+                InstanceIdentifier = "kickstarter"
             };
             IDatabaseInstance databaseInstance = new DatabaseInstance(this, "databaseInstance", databaseInstanceProps);
         }
