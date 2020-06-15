@@ -13,8 +13,8 @@
     "function-runtime" : "dotnetcore3.1",
     "function-memory-size" : 256,
     "function-timeout"     : 30,
-    "function-handler"     : "API::API.Function::TestLambdaFunction",
-    "function-name"        : "TestLambdaFunction",
+    "function-handler"     : "API::API.Function::HelloWorld",
+    "function-name"        : "HelloWorldLambda",
     "function-role"        : "arn:aws:iam::184660160185:role/lambda_exec_TestLambdaFunction",
     "tracing-mode"         : "PassThrough",
     "environment-variables" : ""
