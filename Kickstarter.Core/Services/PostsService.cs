@@ -26,6 +26,7 @@ namespace Kickstarter.Core.Services
                 
                 if (response.HttpStatusCode != HttpStatusCode.OK)
                 {
+                    client.Dispose();
                     throw new Exception(response.HttpStatusCode.ToString());
                 }
                 

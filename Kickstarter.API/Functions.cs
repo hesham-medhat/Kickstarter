@@ -16,17 +16,18 @@ namespace Kickstarter.API
     public class Functions
     {
         /// <summary>
-        /// GET: /getPost/postid/
-        /// Fetches the Post of the given id given through the request's path parameter
+        /// GET: /getPost/{postid}/
+        /// Fetches the Post of the given id passed through the request's path parameter {postid}
         /// A Lambda function to respond to HTTP Get methods from API Gateway
         /// </summary>
         public async Task<APIGatewayProxyResponse> GetPost(APIGatewayProxyRequest request, ILambdaContext context)
         {
             string id = request.PathParameters["postid"];
 
-            var response = new APIGatewayProxyResponse();
-
-            response.Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } };
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } }
+            };
 
             try
             {
@@ -38,9 +39,35 @@ namespace Kickstarter.API
                 int statusCode = response.StatusCode = Convert.ToInt32(e.Message);
                 response.Body = statusCode switch
                 {
-                    404 => "Requested post does not exist",
+                    (int)HttpStatusCode.NotFound => "Requested post does not exist",
                     _ => "Failed to load post",
                 };
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// GET: /followUser/{userid}/
+        /// Gets the caller to follow the user whose id is {userid} given in path
+        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> FollowUser(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string userId = request.PathParameters["postid"];
+            string followerId = request.RequestContext.Identity.User;
+
+            var response = new APIGatewayProxyResponse();
+            try
+            {
+                response.StatusCode = (int)await UsersService.FollowUser(
+                    followerId: Convert.ToUInt32(followerId),
+                    userId: Convert.ToUInt32(userId));
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format for the user id";
             }
 
             return response;
