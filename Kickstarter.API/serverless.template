@@ -7,7 +7,7 @@
       "Type": "AWS::Serverless::Function",
       "Properties": {
 	"FunctionName": "getPost",
-        "Handler": "Kickstarter.API::Kickstarter.API.Functions::Get",
+        "Handler": "Kickstarter.API::Kickstarter.API.Functions::GetPost",
         "Runtime": "dotnetcore3.1",
         "CodeUri": "",
         "MemorySize": 128,

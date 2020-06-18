@@ -15,11 +15,11 @@ namespace Kickstarter.API
     public class Functions
     {
         /// <summary>
+        /// GET: /getPost/postid/
+        /// Fetches the Post of the given id given through the request's path parameter
         /// A Lambda function to respond to HTTP Get methods from API Gateway
         /// </summary>
-        /// <param name="request"></param>
-        /// <returns>The API Gateway response.</returns>
-        public async Task<APIGatewayProxyResponse> Get(APIGatewayProxyRequest request, ILambdaContext context)
+        public async Task<APIGatewayProxyResponse> GetPost(APIGatewayProxyRequest request, ILambdaContext context)
         {
             string id = request.PathParameters["postid"];
             var response = new APIGatewayProxyResponse
