@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace API
+namespace Kickstarter.AWSAPI.Tests
 {
     public class Result
     {

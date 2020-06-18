@@ -2,7 +2,9 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
-namespace Kickstarter.Models
+using Kickstarter.Data.Models;
+
+namespace Kickstarter.Data
 {
     public partial class SQLDbContext : DbContext
     {

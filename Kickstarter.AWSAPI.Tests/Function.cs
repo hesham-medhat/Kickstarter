@@ -13,7 +13,7 @@ using System.Collections.Generic;
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
 
-namespace API
+namespace Kickstarter.AWSAPI.Tests
 {
     public class Function
     {

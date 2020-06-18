@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kickstarter.Models
+namespace Kickstarter.Data.Models
 {
     public partial class Address
     {

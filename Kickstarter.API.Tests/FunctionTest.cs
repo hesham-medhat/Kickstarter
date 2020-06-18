@@ -8,9 +8,9 @@ using Amazon.Lambda.Core;
 using Amazon.Lambda.TestUtilities;
 using Amazon.Lambda.APIGatewayEvents;
 
-using ServerlessAPI;
+using Kickstarter.API;
 
-namespace ServerlessAPI.Tests
+namespace Kickstarter.API.Tests
 {
     public class FunctionTest
     {
@@ -19,7 +19,7 @@ namespace ServerlessAPI.Tests
         }
 
         [Fact]
-        public void TetGetMethod()
+        public async Task TetGetMethodAsync()
         {
             TestLambdaContext context;
             APIGatewayProxyRequest request;
@@ -30,7 +30,7 @@ namespace ServerlessAPI.Tests
 
             request = new APIGatewayProxyRequest();
             context = new TestLambdaContext();
-            response = functions.Get(request, context);
+            response = await functions.Get(request, context);
             Assert.Equal(200, response.StatusCode);
             Assert.Equal("Hello AWS Serverless", response.Body);
         }

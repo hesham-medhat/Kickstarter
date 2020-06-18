@@ -3,11 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "API\API.csproj", "{BE380597-50CE-4E77-9E81-2A709B4A5A32}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kickstarter.AWSAPI.Tests", "Kickstarter.AWSAPI.Tests\Kickstarter.AWSAPI.Tests.csproj", "{BE380597-50CE-4E77-9E81-2A709B4A5A32}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API.Tests", "API.Tests\API.Tests.csproj", "{4031DF10-3C7E-4FD4-BCDF-FAB1875DF8F3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kickstarter.Data", "Kickstarter.Data\Kickstarter.Data.csproj", "{7CD34805-6C2A-48FC-9C7C-B636DB5F6837}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kickstarter", "Kickstarter\Kickstarter.csproj", "{7CD34805-6C2A-48FC-9C7C-B636DB5F6837}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kickstarter.API", "Kickstarter.API\Kickstarter.API.csproj", "{FB847DEF-DDBE-4DC2-88D6-A0FEA91A9033}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kickstarter.API.Tests", "Kickstarter.API.Tests\Kickstarter.API.Tests.csproj", "{56B136F2-93B4-48D6-A351-7E352E9EDA8E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kickstarter.Core", "Kickstarter.Core\Kickstarter.Core.csproj", "{6DA74C52-CABF-4769-A339-01B8347E5BB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +23,22 @@ Global
 		{BE380597-50CE-4E77-9E81-2A709B4A5A32}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE380597-50CE-4E77-9E81-2A709B4A5A32}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE380597-50CE-4E77-9E81-2A709B4A5A32}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4031DF10-3C7E-4FD4-BCDF-FAB1875DF8F3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4031DF10-3C7E-4FD4-BCDF-FAB1875DF8F3}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4031DF10-3C7E-4FD4-BCDF-FAB1875DF8F3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4031DF10-3C7E-4FD4-BCDF-FAB1875DF8F3}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7CD34805-6C2A-48FC-9C7C-B636DB5F6837}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{7CD34805-6C2A-48FC-9C7C-B636DB5F6837}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CD34805-6C2A-48FC-9C7C-B636DB5F6837}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CD34805-6C2A-48FC-9C7C-B636DB5F6837}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FB847DEF-DDBE-4DC2-88D6-A0FEA91A9033}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FB847DEF-DDBE-4DC2-88D6-A0FEA91A9033}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FB847DEF-DDBE-4DC2-88D6-A0FEA91A9033}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FB847DEF-DDBE-4DC2-88D6-A0FEA91A9033}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56B136F2-93B4-48D6-A351-7E352E9EDA8E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56B136F2-93B4-48D6-A351-7E352E9EDA8E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56B136F2-93B4-48D6-A351-7E352E9EDA8E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56B136F2-93B4-48D6-A351-7E352E9EDA8E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6DA74C52-CABF-4769-A339-01B8347E5BB1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6DA74C52-CABF-4769-A339-01B8347E5BB1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6DA74C52-CABF-4769-A339-01B8347E5BB1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6DA74C52-CABF-4769-A339-01B8347E5BB1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

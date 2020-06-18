@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Kickstarter.Models
+namespace Kickstarter.Data.Models
 {
-    public partial class UserVotes
+    public partial class Comment
     {
-        public uint UserId { get; set; }
+        public uint Id { get; set; }
         public uint PostId { get; set; }
-        public ulong Direction { get; set; }
+        public uint UserId { get; set; }
 
         public virtual Post Post { get; set; }
         public virtual User User { get; set; }
