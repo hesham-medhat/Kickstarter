@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "dgSpecHash": "h5OK664g7MyRRbs2MyqRAjXS3hDOCI545zWL3Wl/hyihwHmAJ3WMNIUILQRevo7NeFFtILW59BqlUNRchYynBQ==",
+  "success": true,
+  "projectFilePath": "/home/mohamed/Desktop/graduation-project/src/graduation-project/graduation-project.csproj",
+  "expectedPackageFiles": [
+    "/home/mohamed/.nuget/packages/amazon.lambda.apigatewayevents/2.1.0/amazon.lambda.apigatewayevents.2.1.0.nupkg.sha512",
+    "/home/mohamed/.nuget/packages/amazon.lambda.core/1.1.0/amazon.lambda.core.1.1.0.nupkg.sha512",
+    "/home/mohamed/.nuget/packages/amazon.lambda.serialization.systemtextjson/2.0.1/amazon.lambda.serialization.systemtextjson.2.0.1.nupkg.sha512",
+    "/home/mohamed/.nuget/packages/awssdk.core/3.3.107.11/awssdk.core.3.3.107.11.nupkg.sha512",
+    "/home/mohamed/.nuget/packages/awssdk.dynamodbv2/3.3.106.19/awssdk.dynamodbv2.3.3.106.19.nupkg.sha512",
+    "/home/mohamed/.nuget/packages/newtonsoft.json/12.0.3/newtonsoft.json.12.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}
