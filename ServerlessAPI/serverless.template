@@ -6,8 +6,8 @@
     "Get": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-	"FunctionName": "getPost",
-        "Handler": "graduation-project::graduation_project.Functions::Get",
+	      "FunctionName": "getPost",
+        "Handler": "ServerlessAPI::ServerlessAPI.Functions::Get",
         "Runtime": "dotnetcore3.1",
         "CodeUri": "",
         "MemorySize": 128,
@@ -37,4 +37,3 @@
     }
   }
 }
-
