@@ -4,13 +4,13 @@ using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Kickstarter.Models
 {
-    public partial class kickstarterContext : DbContext
+    public partial class SQLDbContext : DbContext
     {
-        public kickstarterContext()
+        public SQLDbContext()
         {
         }
 
-        public kickstarterContext(DbContextOptions<kickstarterContext> options)
+        public SQLDbContext(DbContextOptions<SQLDbContext> options)
             : base(options)
         {
         }

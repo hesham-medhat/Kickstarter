@@ -31,7 +31,7 @@ namespace graduation_project
                 var response = await client.GetItemAsync(request);
                 post = JsonConvert.SerializeObject(response.Item);
             }
-            return (post);
+            return post;
         }
 
 
