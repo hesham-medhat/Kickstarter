@@ -6,20 +6,21 @@
     "Get": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "ServerlessAPI::ServerlessAPI.Functions::Get",
+	"FunctionName": "getPost",
+        "Handler": "graduation-project::graduation_project.Functions::Get",
         "Runtime": "dotnetcore3.1",
         "CodeUri": "",
-        "MemorySize": 256,
+        "MemorySize": 128,
         "Timeout": 30,
         "Role": null,
         "Policies": [
-          "AWSLambdaBasicExecutionRole"
+          "AWSLambdaFullAccess"
         ],
         "Events": {
           "RootGet": {
             "Type": "Api",
             "Properties": {
-              "Path": "/",
+              "Path": "/getpost/{postid}/",
               "Method": "GET"
             }
           }
@@ -31,8 +32,9 @@
     "ApiURL": {
       "Description": "API endpoint URL for Prod environment",
       "Value": {
-        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
+        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/getpost/{postid}"
       }
     }
   }
 }
+
