@@ -6,7 +6,7 @@
     "Get": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-	"FunctionName": "getPost",
+        "FunctionName": "getPost",
         "Handler": "Kickstarter.API::Kickstarter.API.Functions::GetPost",
         "Runtime": "dotnetcore3.1",
         "CodeUri": "",
@@ -37,4 +37,3 @@
     }
   }
 }
-
