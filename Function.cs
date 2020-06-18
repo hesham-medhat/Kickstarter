@@ -41,7 +41,7 @@ namespace graduation_project
         /// <param name="request"></param>
         /// <returns>The API Gateway response.</returns>
         public async Task<APIGatewayProxyResponse> Get(APIGatewayProxyRequest request, ILambdaContext context)
-        {    
+        {
             string id = request.PathParameters["postid"];
             var response = new APIGatewayProxyResponse
             {
