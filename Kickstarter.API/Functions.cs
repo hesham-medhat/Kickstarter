@@ -54,7 +54,7 @@ namespace Kickstarter.API
         /// </summary>
         public async Task<APIGatewayProxyResponse> FollowUser(APIGatewayProxyRequest request, ILambdaContext context)
         {
-            string userId = request.PathParameters["postid"];
+            string userId = request.PathParameters["userid"];
             string followerId = request.RequestContext.Identity.User;
 
             var response = new APIGatewayProxyResponse();
