@@ -26,7 +26,7 @@ namespace Kickstarter.API
 
             var response = new APIGatewayProxyResponse
             {
-                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" } }
+                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
             };
 
             try
@@ -57,7 +57,9 @@ namespace Kickstarter.API
             string userId = request.PathParameters["userid"];
             string followerId = request.RequestContext.Identity.User;
 
-            var response = new APIGatewayProxyResponse();
+            var response = new APIGatewayProxyResponse() {
+                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
             try
             {
                 response.StatusCode = (int)await UsersService.FollowUser(
