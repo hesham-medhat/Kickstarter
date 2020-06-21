@@ -30,11 +30,11 @@ namespace Kickstarter.Core.Services
 
             foreach(AttributeValue value in post["comments"].L) {
                 Dictionary<string, string> comment = new Dictionary<string, string>();
-                comment["id"] = value.L[0].S;
-                comment["postid"] = value.L[1].S;
-                comment["username"] = value.L[2].S;
-                comment["date"] = value.L[3].S;
-                comment["content"] = value.L[4].S;
+                comment["id"] = value.M["id"].S;
+                comment["postid"] = value.M["postid"].S;
+                comment["username"] = value.M["username"].S;
+                comment["date"] = value.M["date"].S;
+                comment["content"] = value.M["content"].S;
                 comments.Add(comment);
             }
         }
