@@ -3,6 +3,7 @@ using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.RDS;
 using Amazon.CDK.AWS.APIGateway;
+using Amazon.DynamoDBv2.Model;
 
 namespace Kickstarter
 {
@@ -21,6 +22,27 @@ namespace Kickstarter
             };
             ITable postsTable = new Table(this, "postsTable", postsTableProps);
 
+            ITableProps commentsTableProps = new TableProps()
+            {
+                BillingMode = BillingMode.PAY_PER_REQUEST,
+                TableName = "comments",
+                PartitionKey = new Attribute()
+                {
+                    Name = "id", Type = AttributeType.STRING
+                },
+                
+            };
+            Table commentsTable = new Table(this, "commentsTable", commentsTableProps);
+
+            GlobalSecondaryIndexProps globalSecondaryIndexProps = new GlobalSecondaryIndexProps()
+            {
+                PartitionKey = new Attribute()
+                {
+                    Name = "post_id", Type = AttributeType.STRING
+                },
+                IndexName = "post_id-index"
+            };
+            commentsTable.AddGlobalSecondaryIndex(globalSecondaryIndexProps);
 
             // SQL RDS Instance
             Vpc vpc = new Vpc(this, "kickstarterVPC");
@@ -36,7 +58,7 @@ namespace Kickstarter
                 },
                 MultiAz = false,
                 AutoMinorVersionUpgrade = false,
-                AllocatedStorage = 25,
+                AllocatedStorage = 20,
                 StorageType = StorageType.GP2,
                 BackupRetention = Duration.Days(3),
                 DeletionProtection = false,
