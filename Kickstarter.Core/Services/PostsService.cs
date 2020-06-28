@@ -62,5 +62,46 @@ namespace Kickstarter.Core.Services
             }
             return post;
         }
+
+        public static async Task<string> AddPostAsync(Newtonsoft.Json.Linq.JObject Post)
+        {
+            string response;
+            using (var client = new AmazonDynamoDBClient())
+            {
+               Dictionary<string, AttributeValue> attributes = new Dictionary<string, AttributeValue>();
+               attributes["categoryId"] = new AttributeValue { S = Post["categoryId"].ToString() };
+               attributes["title"] = new AttributeValue { S = Post["title"].ToString() };
+               attributes["content"] = new AttributeValue { S = Post["content"].ToString() };
+               attributes["date"] = new AttributeValue { S = DateTime.Now.ToString() };
+               attributes["username"] = new AttributeValue { S = Post["username"].ToString() };
+               attributes["tags"] = new AttributeValue
+               {
+                   SS =  JsonConvert.DeserializeObject<List<string>>(Post["tags"].ToString())
+               };
+
+               //default attributes
+               attributes["likes"] = new AttributeValue { N = "0" };
+               attributes["dislikes"] = new AttributeValue { N = "0" };
+               attributes["moreComments"] = new AttributeValue { BOOL = false };
+               //attributes["comments"] = new AttributeValue { L = new List<AttributeValue>() };
+
+               var CUSTOMEPOCH = 1300000000000;
+               var ts = (decimal)DateTime.Now.Subtract(DateTime.MinValue.AddYears(1969)).TotalMilliseconds - CUSTOMEPOCH;
+               Random rnd = new Random();
+               var randid = Math.Floor((decimal)(rnd.Next() * 512));
+               ts = (ts * 64);
+               string id = ((ts * 512) + (randid % 512)).ToString("0");
+               attributes["id"] = new AttributeValue { S = id };
+
+               PutItemRequest request = new PutItemRequest
+               {
+                   TableName = "posts",
+                   Item = attributes
+               };
+               await client.PutItemAsync(request);
+               response = id;
+            }
+            return response;
+        }
     }
 }

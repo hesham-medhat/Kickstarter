@@ -7,6 +7,8 @@ using Amazon.Lambda.APIGatewayEvents;
 
 using Kickstarter.Core.Services;
 using System;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -16,7 +18,7 @@ namespace Kickstarter.API
     public class Functions
     {
         /// <summary>
-        /// GET: /getPost/{postid}/
+        /// GET: /posts/{postid}/
         /// Fetches the Post of the given id passed through the request's path parameter {postid}
         /// A Lambda function to respond to HTTP Get methods from API Gateway
         /// </summary>
@@ -48,9 +50,9 @@ namespace Kickstarter.API
         }
 
         /// <summary>
-        /// GET: /followUser/{userid}/
+        /// Post: /users/{userid}/
         /// Gets the caller to follow the user whose id is {userid} given in path
-        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// A Lambda function to respond to HTTP Post methods from API Gateway
         /// </summary>
         public async Task<APIGatewayProxyResponse> FollowUser(APIGatewayProxyRequest request, ILambdaContext context)
         {
@@ -70,6 +72,44 @@ namespace Kickstarter.API
             {
                 response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                 response.Body = "Input given was in an incorrect format for the user id";
+            }
+
+            return response;
+        }
+
+
+        /// <summary>
+        /// Put: /posts/
+        /// Puts a new post to dynamodb
+        /// A Lambda function to respond to HTTP Put methods from API Gateway
+        /// Example payload: {
+        ///    "categoryId": "1234",
+        ///    "title": "post title",
+        ///    "content": "post content",
+        ///    "username": "username",
+        ///    "tags": [
+        ///        "tag1",
+        ///        "tag2",
+        ///        "tag3"
+        ///        ]
+        /// }
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> AddPost(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var Post = JObject.Parse(request.Body);
+            var response = new APIGatewayProxyResponse() {
+                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+            try
+            {
+                string body = await PostsService.AddPostAsync(Post);
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = "{ \"postId\" : " + body + " } ";
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
             }
 
             return response;
