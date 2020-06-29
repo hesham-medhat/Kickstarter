@@ -114,5 +114,31 @@ namespace Kickstarter.API
 
             return response;
         }
+
+        /// <summary>
+        /// Comments: /comments/
+        /// Puts a comment to a post
+        /// A Lambda function to respond to HTTP Put methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> AddComment(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var Comment = JObject.Parse(request.Body);
+            var response = new APIGatewayProxyResponse() {
+                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+            try
+            {
+                string body = await CommentsServices.AddCommentAsync(Comment);
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = "{ \"commentId\" : " + body + " } ";
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
     }
 }

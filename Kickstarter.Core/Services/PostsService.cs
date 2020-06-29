@@ -11,8 +11,7 @@ namespace Kickstarter.Core.Services
 {
     public class Post
     {
-        public string id, username, date, categoryId, title, content, likes, dislikes;
-        public bool moreComments;
+        public string id, username, date, categoryId, title, content, likes, dislikes, commentsNumber;
         public List<string> tags = new List<string>();
         public List<Dictionary<string, string>> comments = new List<Dictionary<string, string>>();
         public Post(Dictionary<string, AttributeValue> post)
@@ -26,7 +25,7 @@ namespace Kickstarter.Core.Services
             content = post["content"].S;
             likes = post["likes"].N;
             dislikes = post["dislikes"].N;
-            moreComments = post["moreComments"].BOOL;
+            commentsNumber = post["commentsNumber"].N;
 
             foreach(AttributeValue value in post["comments"].L) {
                 Dictionary<string, string> comment = new Dictionary<string, string>();
@@ -82,15 +81,9 @@ namespace Kickstarter.Core.Services
                //default attributes
                attributes["likes"] = new AttributeValue { N = "0" };
                attributes["dislikes"] = new AttributeValue { N = "0" };
-               attributes["moreComments"] = new AttributeValue { BOOL = false };
-               //attributes["comments"] = new AttributeValue { L = new List<AttributeValue>() };
+               attributes["commentsNumber"] = new AttributeValue { N = "0" };
 
-               var CUSTOMEPOCH = 1300000000000;
-               var ts = (decimal)DateTime.Now.Subtract(DateTime.MinValue.AddYears(1969)).TotalMilliseconds - CUSTOMEPOCH;
-               Random rnd = new Random();
-               var randid = Math.Floor((decimal)(rnd.Next() * 512));
-               ts = (ts * 64);
-               string id = ((ts * 512) + (randid % 512)).ToString("0");
+               string id = Guid.NewGuid().ToString();
                attributes["id"] = new AttributeValue { S = id };
 
                PutItemRequest request = new PutItemRequest
