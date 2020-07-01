@@ -9,33 +9,33 @@ using System.Threading.Tasks;
 
 namespace Kickstarter.Core.Services
 {
+    public class Posts
+    {
+        public List<Post> posts = new List<Post>();
+        public string lastKey;
+        
+        public void Add(Post post)
+        {
+            posts.Add(post);
+        }
+    }
+
     public class Post
     {
-        public string id, username, date, categoryId, title, content, likes, dislikes, commentsNumber;
+        public string id, username, date, category, title, content, likes, dislikes, commentsNumber;
         public List<string> tags = new List<string>();
-        public List<Dictionary<string, string>> comments = new List<Dictionary<string, string>>();
         public Post(Dictionary<string, AttributeValue> post)
         {
             id = post["id"].S;
             username = post["username"].S;
             date = post["date"].S;
-            categoryId = post["categoryId"].S;
+            category = post["category"].S;
             tags = post["tags"].SS;
             title = post["title"].S;
             content = post["content"].S;
             likes = post["likes"].N;
             dislikes = post["dislikes"].N;
             commentsNumber = post["commentsNumber"].N;
-
-            foreach(AttributeValue value in post["comments"].L) {
-                Dictionary<string, string> comment = new Dictionary<string, string>();
-                comment["id"] = value.M["id"].S;
-                comment["postid"] = value.M["postid"].S;
-                comment["username"] = value.M["username"].S;
-                comment["date"] = value.M["date"].S;
-                comment["content"] = value.M["content"].S;
-                comments.Add(comment);
-            }
         }
     }
     public static class PostsService
@@ -68,7 +68,7 @@ namespace Kickstarter.Core.Services
             using (var client = new AmazonDynamoDBClient())
             {
                Dictionary<string, AttributeValue> attributes = new Dictionary<string, AttributeValue>();
-               attributes["categoryId"] = new AttributeValue { S = Post["categoryId"].ToString() };
+               attributes["category"] = new AttributeValue { S = Post["category"].ToString() };
                attributes["title"] = new AttributeValue { S = Post["title"].ToString() };
                attributes["content"] = new AttributeValue { S = Post["content"].ToString() };
                attributes["date"] = new AttributeValue { S = DateTime.Now.ToString() };
@@ -88,13 +88,79 @@ namespace Kickstarter.Core.Services
 
                PutItemRequest request = new PutItemRequest
                {
-                   TableName = "posts",
+                   TableName = "pending-review",
                    Item = attributes
                };
                await client.PutItemAsync(request);
                response = id;
             }
             return response;
+        }
+
+        public static async Task<string> GetPendingPostsAsync(string category, string lastKey)
+        {
+            Dictionary<string,AttributeValue> lastKeyEvaluated = new Dictionary<string,AttributeValue> { { "id", new AttributeValue { S = lastKey } },
+                                                                                                         { "category", new AttributeValue { S = category } }};
+            if (lastKey == null) lastKeyEvaluated = null;
+            string response;
+            using (var client = new AmazonDynamoDBClient())
+            {
+               var request = new QueryRequest
+                {
+                    TableName = "pending-review",
+                    IndexName = "category-index",
+                    KeyConditionExpression = "category = :v_category",
+                    ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
+                        {":v_category", new AttributeValue { S =  category }}},
+                    Limit = 10,
+                    ExclusiveStartKey = lastKeyEvaluated,
+                    ScanIndexForward = true
+                };
+
+                var queryResponse = await client.QueryAsync(request);
+                Posts postsResult = new Posts();
+                if (queryResponse.LastEvaluatedKey != null && queryResponse.LastEvaluatedKey.Count != 0) {
+                    postsResult.lastKey = queryResponse.LastEvaluatedKey["id"].S;
+                }
+                foreach (Dictionary<string, AttributeValue> value in queryResponse.Items)
+                {
+                    postsResult.Add(new Post(value));
+                }
+                response = JsonConvert.SerializeObject(postsResult);
+            }
+            return response;
+        }
+
+        public static async Task<HttpStatusCode> ApprovePendingPostsAsync(string id)
+        {
+            using (var client = new AmazonDynamoDBClient())
+            {
+               var request = new GetItemRequest
+                {
+                    TableName = "pending-review",
+                    Key = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue { S = id } } }
+                };
+                var response = await client.GetItemAsync(request);
+                
+                if (response.Item.Count == 0)
+                {
+                    client.Dispose();
+                    throw new Exception("404");
+                }
+                PutItemRequest putRequest = new PutItemRequest
+                {
+                    TableName = "posts",
+                    Item = response.Item
+                };
+               await client.PutItemAsync(putRequest);
+               DeleteItemRequest deleteRequest = new DeleteItemRequest
+               {
+                    TableName = "pending-review",
+                    Key = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue { S = id } } }
+               };
+                await client.DeleteItemAsync(deleteRequest);
+                return HttpStatusCode.OK;
+            }
         }
     }
 }

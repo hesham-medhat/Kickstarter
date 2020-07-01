@@ -1,0 +1,42 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Post",
+    "type": "object",
+    "properties": {
+        "category": {
+            "type": "string"
+        },
+        "title": {
+            "type": "string"
+        },
+	"content": {
+            "type": "string"
+        },
+	"username": {
+            "type": "string"
+        },
+        "tags": {
+            "type": "array",
+            "uniqueItems": true
+        }
+    },
+    "required": ["category", "title", "username", "content"]
+}
+
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "Comment",
+    "type": "object",
+    "properties": {
+	"username": {
+            "type": "string"
+        },
+	"postid": {
+            "type": "string"
+        },
+        "content": {
+            "type": "string"
+        }
+    },
+    "required": ["username", "postid", "content"]
+}

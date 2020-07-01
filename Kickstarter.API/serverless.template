@@ -107,6 +107,78 @@
           }
         }
       }
+    },
+    "GetComments": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "FunctionName": "getComments",
+        "Handler": "Kickstarter.API::Kickstarter.API.Functions::GetComments",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 128,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          "AWSLambdaFullAccess"
+        ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/comments/{postid}/",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    },
+    "GetPendingPosts": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "FunctionName": "getPendingPosts",
+        "Handler": "Kickstarter.API::Kickstarter.API.Functions::GetPendingPosts",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 128,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          "AWSLambdaFullAccess"
+        ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/posts/pending/{category}/",
+              "Method": "GET"
+            }
+          }
+        }
+      }
+    },
+    "ApprovePendingPosts": {
+      "Type": "AWS::Serverless::Function",
+      "Properties": {
+        "FunctionName": "approvePendingPosts",
+        "Handler": "Kickstarter.API::Kickstarter.API.Functions::ApprovePendingPosts",
+        "Runtime": "dotnetcore3.1",
+        "CodeUri": "",
+        "MemorySize": 128,
+        "Timeout": 30,
+        "Role": null,
+        "Policies": [
+          "AWSLambdaFullAccess"
+        ],
+        "Events": {
+          "RootGet": {
+            "Type": "Api",
+            "Properties": {
+              "Path": "/posts/pending/{category}/{postid}/",
+              "Method": "POST"
+            }
+          }
+        }
+      }
     }
   },
   "Outputs": {

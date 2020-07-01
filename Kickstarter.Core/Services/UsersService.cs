@@ -1,7 +1,13 @@
 ﻿using Kickstarter.Data;
 using Kickstarter.Data.Models;
 using Microsoft.EntityFrameworkCore;
+using Amazon.DynamoDBv2;
+using Amazon.DynamoDBv2.Model;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 using System.Net;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace Kickstarter.Core.Services
@@ -38,5 +44,13 @@ namespace Kickstarter.Core.Services
             }
             return resultCode;
         }
+
+        private static bool IsExpert(string username)
+        {
+            //TODO: check if a user is expert or not
+            return true;
+        }
+
     }
+
 }

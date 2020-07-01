@@ -9,6 +9,33 @@ using System.Threading.Tasks;
 
 namespace Kickstarter.Core.Services
 {
+    public class Comments
+    {
+        public List<Comment> comments = new List<Comment>();
+        public string lastKey;
+        
+        public void Add(Comment comment)
+        {
+            comments.Add(comment);
+        }
+    }
+
+    public class Comment
+    {
+        public string id, username, date, content, postid;
+
+        public Comment(Dictionary<string, AttributeValue> value)
+        {
+            id = value["id"].S;
+            postid = value["postid"].S;
+            username = value["username"].S;
+            date = value["date"].S;
+            content = value["content"].S;
+
+        }
+
+    }
+
     public static class CommentsServices
     {
         public static async Task<string> AddCommentAsync(Newtonsoft.Json.Linq.JObject Comment)
@@ -26,13 +53,8 @@ namespace Kickstarter.Core.Services
                 {
                     { "id", new AttributeValue { S = Comment["postid"].ToString() } }
                 };
-                
+
                 Dictionary<string, AttributeValueUpdate> updates = new Dictionary<string, AttributeValueUpdate>();
-                updates["comments"] = new AttributeValueUpdate()
-                {
-                    Action = AttributeAction.ADD,
-                    Value = new AttributeValue { L = new List<AttributeValue> { new AttributeValue { M = attributes } } }
-                };
                 updates["commentsNumber"] = new AttributeValueUpdate()
                 {
                     Action = AttributeAction.ADD,
@@ -53,6 +75,40 @@ namespace Kickstarter.Core.Services
                };
                await client.PutItemAsync(CommentRequest);
                response = id;
+            }
+            return response;
+        }
+
+        public static async Task<string> GetCommentsAsync(string id, string lastKey)
+        {
+            Dictionary<string,AttributeValue> lastKeyEvaluated = new Dictionary<string,AttributeValue> { { "id", new AttributeValue { S = lastKey } },
+                                                                                                         { "postid", new AttributeValue { S = id } }};
+            if (lastKey == null) lastKeyEvaluated = null;
+            string response;
+            using (var client = new AmazonDynamoDBClient())
+            {
+               var request = new QueryRequest
+                {
+                    TableName = "comments",
+                    IndexName = "postid-index",
+                    KeyConditionExpression = "postid = :v_Id",
+                    ExpressionAttributeValues = new Dictionary<string, AttributeValue> {
+                        {":v_Id", new AttributeValue { S =  id }}},
+                    Limit = 10,
+                    ExclusiveStartKey = lastKeyEvaluated,
+                    ScanIndexForward = true
+                };
+
+                var queryResponse = await client.QueryAsync(request);
+                Comments commentsResult = new Comments();
+                if (queryResponse.LastEvaluatedKey != null && queryResponse.LastEvaluatedKey.Count != 0) {
+                    commentsResult.lastKey = queryResponse.LastEvaluatedKey["id"].S;
+                }
+                foreach (Dictionary<string, AttributeValue> value in queryResponse.Items)
+                {
+                    commentsResult.Add(new Comment(value));
+                }
+                response = JsonConvert.SerializeObject(commentsResult);
             }
             return response;
         }
