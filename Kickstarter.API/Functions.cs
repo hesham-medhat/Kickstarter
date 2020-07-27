@@ -28,7 +28,7 @@ namespace Kickstarter.API
 
             var response = new APIGatewayProxyResponse
             {
-                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
             };
 
             try
@@ -165,7 +165,7 @@ namespace Kickstarter.API
 
             var response = new APIGatewayProxyResponse
             {
-                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
             };
 
             try
@@ -201,7 +201,7 @@ namespace Kickstarter.API
 
             var response = new APIGatewayProxyResponse
             {
-                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
             };
 
             try
@@ -235,6 +235,66 @@ namespace Kickstarter.API
             try
             {
                 response.StatusCode = (int)await PostsService.ApprovePendingPostsAsync(id);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Comments: /posts/
+        /// Gets up to 10 posts
+        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetHomeBagePosts(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string lastKey;
+            try
+            {
+            lastKey = request.QueryStringParameters["lastkey"];
+            } catch (Exception)
+            {
+                lastKey = null;
+            }
+
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await PostsService.GetHomeBagePostsAsync(lastKey);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Comments: /tags/
+        /// Gets top 10 tags
+        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetTopTags(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await TagsService.GetTopTagsAsync();
             }
             catch (Exception)
             {

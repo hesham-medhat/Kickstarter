@@ -162,5 +162,37 @@ namespace Kickstarter.Core.Services
                 return HttpStatusCode.OK;
             }
         }
+
+        public static async Task<string> GetHomeBagePostsAsync(string lastKey)
+        {
+            Dictionary<string,AttributeValue> lastKeyEvaluated;
+            if (lastKey == null || lastKey.Length == 0) lastKeyEvaluated = null;
+            else
+            {
+                lastKeyEvaluated = new Dictionary<string,AttributeValue> { { "id", new AttributeValue { S = lastKey } } };
+            }
+            string response;
+            using (var client = new AmazonDynamoDBClient())
+            {
+               var request = new ScanRequest
+                {
+                    TableName = "posts",
+                    Limit = 10,
+                    ExclusiveStartKey = lastKeyEvaluated
+                };
+
+                var queryResponse = await client.ScanAsync(request);
+                Posts postsResult = new Posts();
+                if (queryResponse.LastEvaluatedKey != null && queryResponse.LastEvaluatedKey.Count != 0) {
+                    postsResult.lastKey = queryResponse.LastEvaluatedKey["id"].S;
+                }
+                foreach (Dictionary<string, AttributeValue> value in queryResponse.Items)
+                {
+                    postsResult.Add(new Post(value));
+                }
+                response = JsonConvert.SerializeObject(postsResult);
+            }
+            return response;
+        }
     }
 }
