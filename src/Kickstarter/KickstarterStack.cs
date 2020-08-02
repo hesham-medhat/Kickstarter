@@ -2,6 +2,7 @@ using Amazon.CDK;
 using Amazon.CDK.AWS.DynamoDB;
 using Amazon.CDK.AWS.EC2;
 using Amazon.CDK.AWS.RDS;
+using Amazon.CDK.AWS.S3;
 using Amazon.CDK.AWS.APIGateway;
 using Amazon.DynamoDBv2.Model;
 
@@ -47,6 +48,7 @@ namespace Kickstarter
             // SQL RDS Instance
             Vpc vpc = new Vpc(this, "kickstarterVPC");
 
+
             IDatabaseInstanceProps databaseInstanceProps = new DatabaseInstanceProps()
             {
                 Engine = DatabaseInstanceEngine.MYSQL,
@@ -70,6 +72,13 @@ namespace Kickstarter
                 InstanceIdentifier = "kickstarter"
             };
             IDatabaseInstance databaseInstance = new DatabaseInstance(this, "databaseInstance", databaseInstanceProps);
+
+            // S3 Bucket
+            IBucketProps bucketProps = new BucketProps()
+            {
+                BucketName = "kickstarter-attachments",
+            };
+            Bucket attachmentsBucket = new Bucket(this, "attachmentsBucket", bucketProps);
         }
     }
 }
