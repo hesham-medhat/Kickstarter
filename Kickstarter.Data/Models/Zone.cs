@@ -10,9 +10,10 @@ namespace Kickstarter.Data.Models
             Address = new HashSet<Address>();
         }
 
-        public uint Id { get; set; }
-        public uint CountryId { get; set; }
+        public int ZoneId { get; set; }
+        public int CountryId { get; set; }
         public string Name { get; set; }
+        public string Code { get; set; }
 
         public virtual Country Country { get; set; }
         public virtual ICollection<Address> Address { get; set; }

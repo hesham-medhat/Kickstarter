@@ -7,14 +7,13 @@ namespace Kickstarter.Data.Models
     {
         public Category()
         {
+            ExpertToCategory = new HashSet<ExpertToCategory>();
             Post = new HashSet<Post>();
-            UserCategoryExpert = new HashSet<UserCategoryExpert>();
         }
 
-        public uint Id { get; set; }
-        public string Name { get; set; }
+        public string Category1 { get; set; }
 
+        public virtual ICollection<ExpertToCategory> ExpertToCategory { get; set; }
         public virtual ICollection<Post> Post { get; set; }
-        public virtual ICollection<UserCategoryExpert> UserCategoryExpert { get; set; }
     }
 }

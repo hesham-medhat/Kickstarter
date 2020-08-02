@@ -3,9 +3,8 @@ using System.Collections.Generic;
 
 namespace Kickstarter.Data.Models
 {
-    public partial class Post
+    public partial class ExpertToCategory
     {
-        public string PostId { get; set; }
         public string Username { get; set; }
         public string Category { get; set; }
 
