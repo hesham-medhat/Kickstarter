@@ -48,7 +48,7 @@ namespace Kickstarter.Core.Services
                 var request = new GetItemRequest
                 {
                     TableName = "posts",
-                    Key = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue { S = id } } },
+                    Key = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue { S = id } } }
                 };
                 var response = await client.GetItemAsync(request);
                 

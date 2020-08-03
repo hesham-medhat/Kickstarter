@@ -13,6 +13,6 @@
     "s3-prefix"     : "Kickstarter.API/",
     "template"      : "serverless.template",
     "template-parameters" : "",
-    "s3-bucket"           : "kickstarterapis",
+    "s3-bucket"           : "apiskickstarter",
     "stack-name"          : "apis"
 }

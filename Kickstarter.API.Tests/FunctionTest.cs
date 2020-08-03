@@ -17,6 +17,7 @@ namespace Kickstarter.API.Tests
         public FunctionTest()
         {
         }
+	/*
 
         [Fact]
         public async Task TetGetMethodAsync()
@@ -33,6 +34,6 @@ namespace Kickstarter.API.Tests
             response = await functions.Get(request, context);
             Assert.Equal(200, response.StatusCode);
             Assert.Equal("Hello AWS Serverless", response.Body);
-        }
+        }*/
     }
 }

@@ -20,7 +20,7 @@ namespace Kickstarter.Core.Services
         /// <param name="followerId">User following</param>
         /// <param name="userId">User to be followed</param>
         /// <returns>HTTP status code of the operation</returns>
-        public static async Task<HttpStatusCode> FollowUser(uint followerId, uint userId)
+        public static async Task<HttpStatusCode> FollowUser(int followerId, int userId)
         {
             HttpStatusCode resultCode;
             using (var dbContext = new SQLDbContext())

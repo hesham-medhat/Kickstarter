@@ -112,5 +112,37 @@ namespace Kickstarter.Core.Services
             }
             return response;
         }
+
+        public static async Task<string> DeleteCommentAsync(string id, string username)
+        {
+            Dictionary<string,AttributeValue> key = new Dictionary<string,AttributeValue> { { "id", new AttributeValue { S = id } } };
+            string response;
+            using (var client = new AmazonDynamoDBClient())
+            {
+               var getRequest = new GetItemRequest
+                {
+                    TableName = "comments",
+                    Key = key
+                };
+                var comment = await client.GetItemAsync(getRequest);
+                
+                if (comment.Item.Count == 0)
+                {
+                    client.Dispose();
+                    throw new Exception("404");
+                } else if(comment.Item["username"].S != username) {
+                    client.Dispose();
+                    throw new Exception("Access Denied");
+                }
+               var request = new DeleteItemRequest
+                {
+                    TableName = "comments",
+                    Key = key
+                };
+                var queryResponse = await client.DeleteItemAsync(request);
+                response = JsonConvert.SerializeObject(queryResponse);
+            }
+            return response;
+        }
     }
 }

@@ -21,14 +21,13 @@ namespace Kickstarter.Data
         public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<Comment> Comment { get; set; }
         public virtual DbSet<Country> Country { get; set; }
+        public virtual DbSet<ExpertToCategory> ExpertToCategory { get; set; }
         public virtual DbSet<FollowerToUser> FollowerToUser { get; set; }
         public virtual DbSet<Post> Post { get; set; }
         public virtual DbSet<PostToTag> PostToTag { get; set; }
         public virtual DbSet<Tag> Tag { get; set; }
         public virtual DbSet<User> User { get; set; }
-        public virtual DbSet<UserCategoryExpert> UserCategoryExpert { get; set; }
-        public virtual DbSet<UserTagExpert> UserTagExpert { get; set; }
-        public virtual DbSet<UserVotes> UserVotes { get; set; }
+        public virtual DbSet<UserGroup> UserGroup { get; set; }
         public virtual DbSet<Zone> Zone { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -36,7 +35,7 @@ namespace Kickstarter.Data
             if (!optionsBuilder.IsConfigured)
             {
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseMySql("server=kickstarter.co5dyjzk9lvp.us-east-1.rds.amazonaws.com;port=3306;database=kickstarter;uid=admin;pwd=password", x => x.ServerVersion("5.7.22-mysql"));
+                optionsBuilder.UseMySql("server=kickstarter.cso5bxnzmnc8.us-east-1.rds.amazonaws.com;database=kickstarter;uid=admin;pwd=kickstarter", x => x.ServerVersion("8.0.17-mysql"));
             }
         }
 
@@ -46,16 +45,15 @@ namespace Kickstarter.Data
             {
                 entity.ToTable("address");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
-                    .IsUnique();
+                entity.HasIndex(e => e.CountryId)
+                    .HasName("country_id");
 
                 entity.HasIndex(e => e.ZoneId)
-                    .HasName("address_zone_id_idx");
+                    .HasName("zone_id");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
+                entity.Property(e => e.AddressId)
+                    .HasColumnName("address_id")
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.Address1)
                     .IsRequired()
@@ -65,6 +63,7 @@ namespace Kickstarter.Data
                     .HasCollation("utf8_general_ci");
 
                 entity.Property(e => e.Address2)
+                    .IsRequired()
                     .HasColumnName("address_2")
                     .HasColumnType("varchar(128)")
                     .HasCharSet("utf8")
@@ -77,6 +76,10 @@ namespace Kickstarter.Data
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
+                entity.Property(e => e.CountryId)
+                    .HasColumnName("country_id")
+                    .HasColumnType("int(11)");
+
                 entity.Property(e => e.Postcode)
                     .IsRequired()
                     .HasColumnName("postcode")
@@ -86,31 +89,31 @@ namespace Kickstarter.Data
 
                 entity.Property(e => e.ZoneId)
                     .HasColumnName("zone_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("int(11)");
+
+                entity.HasOne(d => d.Country)
+                    .WithMany(p => p.Address)
+                    .HasForeignKey(d => d.CountryId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("address_ibfk_2");
 
                 entity.HasOne(d => d.Zone)
                     .WithMany(p => p.Address)
                     .HasForeignKey(d => d.ZoneId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("address_zone_id");
+                    .HasConstraintName("address_ibfk_3");
             });
 
             modelBuilder.Entity<Category>(entity =>
             {
+                entity.HasKey(e => e.Category1)
+                    .HasName("PRIMARY");
+
                 entity.ToTable("category");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
-                    .IsUnique();
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.Name)
-                    .IsRequired()
-                    .HasColumnName("name")
-                    .HasColumnType("varchar(45)")
+                entity.Property(e => e.Category1)
+                    .HasColumnName("category")
+                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
             });
@@ -120,50 +123,70 @@ namespace Kickstarter.Data
                 entity.ToTable("comment");
 
                 entity.HasIndex(e => e.PostId)
-                    .HasName("comment_post_id_idx");
+                    .HasName("post_id");
 
                 entity.HasIndex(e => e.UserId)
-                    .HasName("comment_user_id_idx");
+                    .HasName("user_id");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
+                entity.Property(e => e.CommentId)
+                    .HasColumnName("comment_id")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.DateAdded)
+                    .HasColumnName("date_added")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasColumnName("description")
+                    .HasColumnType("text")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
                 entity.Property(e => e.PostId)
+                    .IsRequired()
                     .HasColumnName("post_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.HasOne(d => d.Post)
-                    .WithMany(p => p.Comment)
-                    .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("comment_post_id");
+                    .HasColumnType("int(11)");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Comment)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("comment_user_id");
+                    .HasConstraintName("comment_ibfk_2");
             });
 
             modelBuilder.Entity<Country>(entity =>
             {
                 entity.ToTable("country");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
+                entity.HasIndex(e => e.IsoCode2)
+                    .HasName("iso_code_2")
                     .IsUnique();
 
-                entity.HasIndex(e => e.Name)
-                    .HasName("name_UNIQUE")
-                    .IsUnique();
+                entity.Property(e => e.CountryId)
+                    .HasColumnName("country_id")
+                    .HasColumnType("int(11)");
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
+                entity.Property(e => e.IsoCode2)
+                    .IsRequired()
+                    .HasColumnName("iso_code_2")
+                    .HasColumnType("varchar(2)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.IsoCode3)
+                    .IsRequired()
+                    .HasColumnName("iso_code_3")
+                    .HasColumnType("varchar(3)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -173,6 +196,42 @@ namespace Kickstarter.Data
                     .HasCollation("utf8_general_ci");
             });
 
+            modelBuilder.Entity<ExpertToCategory>(entity =>
+            {
+                entity.HasKey(e => new { e.Username, e.Category })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("expert_to_category");
+
+                entity.HasIndex(e => e.Category)
+                    .HasName("category");
+
+                entity.Property(e => e.Username)
+                    .HasColumnName("username")
+                    .HasColumnType("varchar(20)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Category)
+                    .HasColumnName("category")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.HasOne(d => d.CategoryNavigation)
+                    .WithMany(p => p.ExpertToCategory)
+                    .HasForeignKey(d => d.Category)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("expert_to_category_ibfk_2");
+
+                entity.HasOne(d => d.UsernameNavigation)
+                    .WithMany(p => p.ExpertToCategory)
+                    .HasPrincipalKey(p => p.Username)
+                    .HasForeignKey(d => d.Username)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("expert_to_category_ibfk_1");
+            });
+
             modelBuilder.Entity<FollowerToUser>(entity =>
             {
                 entity.HasKey(e => new { e.FollowerId, e.UserId })
@@ -180,131 +239,110 @@ namespace Kickstarter.Data
 
                 entity.ToTable("follower_to_user");
 
-                entity.HasIndex(e => e.FollowerId)
-                    .HasName("follower_to_user_follower_id_idx");
-
                 entity.HasIndex(e => e.UserId)
-                    .HasName("follower_to_user_user_id_idx");
+                    .HasName("user_id");
 
                 entity.Property(e => e.FollowerId)
                     .HasColumnName("follower_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("int(11)");
 
                 entity.HasOne(d => d.Follower)
                     .WithMany(p => p.FollowerToUserFollower)
                     .HasForeignKey(d => d.FollowerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("follower_to_user_follower_id");
+                    .HasConstraintName("follower_to_user_ibfk_1");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.FollowerToUserUser)
                     .HasForeignKey(d => d.UserId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("follower_to_user_user_id");
+                    .HasConstraintName("follower_to_user_ibfk_2");
             });
 
             modelBuilder.Entity<Post>(entity =>
             {
+                entity.HasKey(e => new { e.PostId, e.Username, e.Category })
+                    .HasName("PRIMARY");
+
                 entity.ToTable("post");
 
-                entity.HasIndex(e => e.CategoryId)
-                    .HasName("category_id_idx");
+                entity.HasIndex(e => e.Category)
+                    .HasName("category");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
-                    .IsUnique();
+                entity.HasIndex(e => e.Username)
+                    .HasName("username");
 
-                entity.HasIndex(e => e.UserId)
-                    .HasName("post_user_id_idx");
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("category_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.State)
-                    .IsRequired()
-                    .HasColumnName("state")
-                    .HasColumnType("enum('PENDING','APPROVED','DELETED')")
-                    .HasDefaultValueSql("'PENDING'")
+                entity.Property(e => e.PostId)
+                    .HasColumnName("post_id")
+                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("int(11) unsigned");
+                entity.Property(e => e.Username)
+                    .HasColumnName("username")
+                    .HasColumnType("varchar(20)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
-                entity.HasOne(d => d.Category)
-                    .WithMany(p => p.Post)
-                    .HasForeignKey(d => d.CategoryId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("post_category_id");
+                entity.Property(e => e.Category)
+                    .HasColumnName("category")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
-                entity.HasOne(d => d.User)
+                entity.HasOne(d => d.CategoryNavigation)
                     .WithMany(p => p.Post)
-                    .HasForeignKey(d => d.UserId)
+                    .HasForeignKey(d => d.Category)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("post_user_id");
+                    .HasConstraintName("post_ibfk_2");
+
+                entity.HasOne(d => d.UsernameNavigation)
+                    .WithMany(p => p.Post)
+                    .HasPrincipalKey(p => p.Username)
+                    .HasForeignKey(d => d.Username)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("post_ibfk_1");
             });
 
             modelBuilder.Entity<PostToTag>(entity =>
             {
-                entity.HasKey(e => new { e.PostId, e.TagId })
-                    .HasName("PRIMARY");
+                entity.HasNoKey();
 
                 entity.ToTable("post_to_tag");
 
-                entity.HasIndex(e => e.PostId)
-                    .HasName("post_to_tag_post_id_idx");
-
-                entity.HasIndex(e => e.TagId)
-                    .HasName("post_to_tag_tag_id_idx");
-
                 entity.Property(e => e.PostId)
+                    .IsRequired()
                     .HasColumnName("post_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
-                entity.Property(e => e.TagId)
-                    .HasColumnName("tag_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.HasOne(d => d.Post)
-                    .WithMany(p => p.PostToTag)
-                    .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("post_to_tag_post_id");
-
-                entity.HasOne(d => d.Tag)
-                    .WithMany(p => p.PostToTag)
-                    .HasForeignKey(d => d.TagId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("post_to_tag_tag_id");
+                entity.Property(e => e.Tag)
+                    .IsRequired()
+                    .HasColumnName("tag")
+                    .HasColumnType("varchar(20)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
             });
 
             modelBuilder.Entity<Tag>(entity =>
             {
+                entity.HasKey(e => e.Name)
+                    .HasName("PRIMARY");
+
                 entity.ToTable("tag");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
-                    .IsUnique();
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.NormalizedName)
-                    .IsRequired()
-                    .HasColumnName("normalized_name")
-                    .HasColumnType("varchar(45)")
+                entity.Property(e => e.Name)
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(20)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Occurrences)
+                    .HasColumnName("occurrences")
+                    .HasColumnType("int(11)");
             });
 
             modelBuilder.Entity<User>(entity =>
@@ -312,31 +350,26 @@ namespace Kickstarter.Data
                 entity.ToTable("user");
 
                 entity.HasIndex(e => e.AddressId)
-                    .HasName("user_address_id_idx");
+                    .HasName("address_id");
 
-                entity.HasIndex(e => e.Email)
-                    .HasName("email_UNIQUE")
-                    .IsUnique();
-
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
-                    .IsUnique();
+                entity.HasIndex(e => e.UserGroupId)
+                    .HasName("user_group_id");
 
                 entity.HasIndex(e => e.Username)
-                    .HasName("username_UNIQUE")
+                    .HasName("username")
                     .IsUnique();
 
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(11) unsigned");
+                entity.Property(e => e.UserId)
+                    .HasColumnName("user_id")
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.AddressId)
                     .HasColumnName("address_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("int(11)");
 
-                entity.Property(e => e.CreatedAt)
-                    .HasColumnName("created_at")
-                    .HasColumnType("timestamp");
+                entity.Property(e => e.DateAdded)
+                    .HasColumnName("date_added")
+                    .HasColumnType("datetime");
 
                 entity.Property(e => e.Email)
                     .IsRequired()
@@ -359,15 +392,27 @@ namespace Kickstarter.Data
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasColumnName("password")
+                    .HasColumnType("varchar(40)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
                 entity.Property(e => e.Points)
                     .HasColumnName("points")
-                    .HasColumnType("int(10) unsigned zerofill");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.Telephone)
+                    .IsRequired()
                     .HasColumnName("telephone")
                     .HasColumnType("varchar(32)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.UserGroupId)
+                    .HasColumnName("user_group_id")
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.Username)
                     .IsRequired()
@@ -380,109 +425,29 @@ namespace Kickstarter.Data
                     .WithMany(p => p.User)
                     .HasForeignKey(d => d.AddressId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("user_address_id");
-            });
+                    .HasConstraintName("user_ibfk_2");
 
-            modelBuilder.Entity<UserCategoryExpert>(entity =>
-            {
-                entity.HasKey(e => new { e.UserId, e.CategoryId })
-                    .HasName("PRIMARY");
-
-                entity.ToTable("user_category_expert");
-
-                entity.HasIndex(e => e.CategoryId)
-                    .HasName("user_category_expert_category_id_idx");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("user_category_user_id_idx");
-
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.CategoryId)
-                    .HasColumnName("category_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.HasOne(d => d.Category)
-                    .WithMany(p => p.UserCategoryExpert)
-                    .HasForeignKey(d => d.CategoryId)
+                entity.HasOne(d => d.UserGroup)
+                    .WithMany(p => p.User)
+                    .HasForeignKey(d => d.UserGroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("user_category_expert_category_id");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserCategoryExpert)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("user_category_expert_user_id");
+                    .HasConstraintName("user_ibfk_1");
             });
 
-            modelBuilder.Entity<UserTagExpert>(entity =>
+            modelBuilder.Entity<UserGroup>(entity =>
             {
-                entity.HasKey(e => new { e.UserId, e.TagId })
-                    .HasName("PRIMARY");
+                entity.ToTable("user_group");
 
-                entity.ToTable("user_tag_expert");
+                entity.Property(e => e.UserGroupId)
+                    .HasColumnName("user_group_id")
+                    .HasColumnType("int(11)");
 
-                entity.HasIndex(e => e.TagId)
-                    .HasName("user_tag_expert_tag_id_idx");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("user_tag_expert_user_id_idx");
-
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.TagId)
-                    .HasColumnName("tag_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.HasOne(d => d.Tag)
-                    .WithMany(p => p.UserTagExpert)
-                    .HasForeignKey(d => d.TagId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("user_tag_expert_tag_id");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserTagExpert)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("user_tag_expert_user_id");
-            });
-
-            modelBuilder.Entity<UserVotes>(entity =>
-            {
-                entity.HasKey(e => new { e.UserId, e.PostId })
-                    .HasName("PRIMARY");
-
-                entity.ToTable("user_votes");
-
-                entity.HasIndex(e => e.PostId)
-                    .HasName("user_votes_post_id_idx");
-
-                entity.HasIndex(e => e.UserId)
-                    .HasName("user_votes_user_id_idx");
-
-                entity.Property(e => e.UserId)
-                    .HasColumnName("user_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.PostId)
-                    .HasColumnName("post_id")
-                    .HasColumnType("int(10) unsigned");
-
-                entity.Property(e => e.Direction)
-                    .HasColumnName("direction")
-                    .HasColumnType("bit(1)");
-
-                entity.HasOne(d => d.Post)
-                    .WithMany(p => p.UserVotes)
-                    .HasForeignKey(d => d.PostId)
-                    .HasConstraintName("user_votes_post_id");
-
-                entity.HasOne(d => d.User)
-                    .WithMany(p => p.UserVotes)
-                    .HasForeignKey(d => d.UserId)
-                    .HasConstraintName("user_votes_user_id");
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(64)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
             });
 
             modelBuilder.Entity<Zone>(entity =>
@@ -490,23 +455,22 @@ namespace Kickstarter.Data
                 entity.ToTable("zone");
 
                 entity.HasIndex(e => e.CountryId)
-                    .HasName("zone_country_id_idx");
+                    .HasName("country_id");
 
-                entity.HasIndex(e => e.Id)
-                    .HasName("id_UNIQUE")
-                    .IsUnique();
+                entity.Property(e => e.ZoneId)
+                    .HasColumnName("zone_id")
+                    .HasColumnType("int(11)");
 
-                entity.HasIndex(e => new { e.CountryId, e.Name })
-                    .HasName("zone_UNIQUE")
-                    .IsUnique();
-
-                entity.Property(e => e.Id)
-                    .HasColumnName("id")
-                    .HasColumnType("int(10) unsigned");
+                entity.Property(e => e.Code)
+                    .IsRequired()
+                    .HasColumnName("code")
+                    .HasColumnType("varchar(32)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
 
                 entity.Property(e => e.CountryId)
                     .HasColumnName("country_id")
-                    .HasColumnType("int(10) unsigned");
+                    .HasColumnType("int(11)");
 
                 entity.Property(e => e.Name)
                     .IsRequired()
@@ -519,7 +483,7 @@ namespace Kickstarter.Data
                     .WithMany(p => p.Zone)
                     .HasForeignKey(d => d.CountryId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("zone_country_id");
+                    .HasConstraintName("zone_ibfk_1");
             });
 
             OnModelCreatingPartial(modelBuilder);

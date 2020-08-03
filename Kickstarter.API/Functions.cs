@@ -65,8 +65,8 @@ namespace Kickstarter.API
             try
             {
                 response.StatusCode = (int)await UsersService.FollowUser(
-                    followerId: Convert.ToUInt32(followerId),
-                    userId: Convert.ToUInt32(userId));
+                    followerId: Convert.ToInt32(followerId),
+                    userId: Convert.ToInt32(userId));
             }
             catch (Exception)
             {
@@ -147,13 +147,13 @@ namespace Kickstarter.API
         }
 
         /// <summary>
-        /// Comments: /comments/{postid}
+        /// Comments: /comments/
         /// Gets up to 10 comments of a post
         /// A Lambda function to respond to HTTP Get methods from API Gateway
         /// </summary>
         public async Task<APIGatewayProxyResponse> GetComments(APIGatewayProxyRequest request, ILambdaContext context)
         {
-            string id = request.PathParameters["postid"];
+            string id = request.QueryStringParameters["postid"];
             string lastKey;
             try
             {
@@ -177,6 +177,35 @@ namespace Kickstarter.API
             {
                 response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
                 response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Comments: /comments/{commentid}?userid=id
+        /// Deletes a comment
+        /// A Lambda function to respond to HTTP Delete methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> DeleteComment(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string id = request.PathParameters["commentid"];
+            string username = request.QueryStringParameters["username"];
+
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await CommentsServices.DeleteCommentAsync(id, username);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
             }
 
             return response;
@@ -219,7 +248,7 @@ namespace Kickstarter.API
         }
 
         /// <summary>
-        /// Comments: /posts/pending/{postid}
+        /// Comments: /posts/pending/{category}/{postid}
         /// Approve a pending post
         /// A Lambda function to respond to HTTP Post methods from API Gateway
         /// </summary>
@@ -295,6 +324,59 @@ namespace Kickstarter.API
             {
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Body = await TagsService.GetTopTagsAsync();
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Comments: /utils/countries/
+        /// Gets all countries
+        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetCountries(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await UtilsService.GetCountries();
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Comments: /utils/zones/
+        /// Gets all zones of a country
+        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetZones(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            int country = Convert.ToInt32(request.QueryStringParameters["countryid"]);
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await UtilsService.GetZones(country);
             }
             catch (Exception)
             {
