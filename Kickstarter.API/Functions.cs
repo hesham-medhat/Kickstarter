@@ -275,6 +275,34 @@ namespace Kickstarter.API
         }
 
         /// <summary>
+        /// GET: /posts/pending/{category}/{postid}
+        /// Approve a pending post
+        /// A Lambda function to respond to HTTP GET methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetPendingPostById(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string id = request.PathParameters["postid"];
+
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "text/plain" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await PostsService.GetPendingPostByIdAsync(id);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
         /// Comments: /posts/
         /// Gets up to 10 posts
         /// A Lambda function to respond to HTTP Get methods from API Gateway
@@ -377,6 +405,130 @@ namespace Kickstarter.API
             {
                 response.StatusCode = (int)HttpStatusCode.OK;
                 response.Body = await UtilsService.GetZones(country);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Comments: /utils/categories/
+        /// Gets all zones of a country
+        /// A Lambda function to respond to HTTP Get methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetCategories(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await UtilsService.GetCategories();
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Put: /users/
+        /// Adds a new user to the system
+        /// A Lambda function to respond to HTTP Put methods from API Gateway
+        /// Example payload: {
+        ///    "username": "user",
+        ///    "password": "hash value",
+        ///    "firstname": "first name",
+        ///    "lastname": "last name",
+        ///    "email": "email@email.com",
+        ///    "telephone": "phone number string",
+        ///    "address1": "address1",
+        ///    "address2": "address2",
+        ///    "city": "city",
+        ///    "postcode": "postcode",
+        ///    "countryid": "id",
+        ///    "zoneid": "id"
+        /// }
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> Register(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var user = JObject.Parse(request.Body);
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+
+            try
+            {
+                response.StatusCode = (int) await UsersService.Register(user);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Get: /users/
+        /// sign user into the system
+        /// A Lambda function to respond to HTTP POST methods from API Gateway
+        /// Example payload: {
+        ///    username: "user",
+        ///    password: "hash value"
+        /// }
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> SignIn(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var user = JObject.Parse(request.Body);
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+            
+            try
+            {
+                response.StatusCode = (int) await UsersService.SignIn(user["username"].ToString(), user["password"].ToString());
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Input given was in an incorrect format";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Get: /users/expertises
+        /// Get categories that user is expert on
+        /// A Lambda function to respond to HTTP GET methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> ExpertsCategories(APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string username = request.QueryStringParameters["username"];
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await UsersService.ExpertsCategories(username);
             }
             catch (Exception)
             {
