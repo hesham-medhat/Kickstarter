@@ -11,6 +11,7 @@ namespace Kickstarter.Data.Models
         public DateTime DateAdded { get; set; }
         public string Description { get; set; }
 
+        public virtual Post Post { get; set; }
         public virtual User User { get; set; }
     }
 }
