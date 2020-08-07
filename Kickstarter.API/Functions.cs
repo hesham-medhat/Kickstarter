@@ -538,5 +538,59 @@ namespace Kickstarter.API
 
             return response;
         }
+
+        /// <summary>
+        /// Get: /users/username
+        /// Get categories that user is expert on
+        /// A Lambda function to respond to HTTP GET methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetProfile (APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string username = request.PathParameters["userid"];
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await UsersService.GetProfile(username);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.NotFound;
+                response.Body = "User Not Found";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// Get: /users/account
+        /// Get categories that user is expert on
+        /// A Lambda function to respond to HTTP GET methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetAccount (APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string username = request.QueryStringParameters["username"];
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)HttpStatusCode.OK;
+                response.Body = await UsersService.GetAccount(username);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.NotFound;
+                response.Body = "User Not Found";
+            }
+
+            return response;
+        }
     }
 }
