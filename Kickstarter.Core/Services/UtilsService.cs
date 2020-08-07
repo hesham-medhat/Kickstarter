@@ -36,6 +36,21 @@ namespace Kickstarter.Core.Services
             var zones = await dbContext.Zone.Where(z => z.CountryId == countryId).Select(z => new {z.ZoneId ,z.Name}).ToListAsync();
             return JsonConvert.SerializeObject(zones);
         }
+
+        /// <summary>
+        /// Returns all categories available
+        /// </summary>
+        /// <returns>Categories list as json object</returns>
+        public static async Task<string> GetCategories()
+        {
+            var dbContext = new SQLDbContext();
+            var categories = await dbContext.Category.Select(c => new {c.Category1}).ToListAsync();
+            List<string> categoriesList = new List<string>();
+            foreach (var i in categories) {
+                categoriesList.Add(i.Category1);
+            }
+            return JsonConvert.SerializeObject(categoriesList);
+        }
     }
 
 }

@@ -310,6 +310,17 @@ namespace Kickstarter.Data.Models
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
+                entity.Property(e => e.Date)
+                    .HasColumnName("date")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasColumnName("title")
+                    .HasColumnType("varchar(80)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
                 entity.Property(e => e.Username)
                     .IsRequired()
                     .HasColumnName("username")
@@ -394,7 +405,8 @@ namespace Kickstarter.Data.Models
 
                 entity.Property(e => e.DateAdded)
                     .HasColumnName("date_added")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.Email)
                     .IsRequired()

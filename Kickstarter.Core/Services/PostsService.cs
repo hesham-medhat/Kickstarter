@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Kickstarter.Data;
+using Kickstarter.Data.Models;
 
 namespace Kickstarter.Core.Services
 {
@@ -159,8 +161,33 @@ namespace Kickstarter.Core.Services
                     Key = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue { S = id } } }
                };
                 await client.DeleteItemAsync(deleteRequest);
+                var dbContext = new SQLDbContext();
+                dbContext.Post.Add(new Kickstarter.Data.Models.Post {PostId=id, Username=response.Item["username"].S, Category=response.Item["category"].S, Title=response.Item["title"].S, Date=Convert.ToDateTime(response.Item["date"].S)});
+                await dbContext.SaveChangesAsync();
                 return HttpStatusCode.OK;
             }
+        }
+
+        public static async Task<string> GetPendingPostByIdAsync(string id)
+        {
+            string post;
+            using (var client = new AmazonDynamoDBClient())
+            {
+                var request = new GetItemRequest
+                {
+                    TableName = "pending-review",
+                    Key = new Dictionary<string, AttributeValue>() { { "id", new AttributeValue { S = id } } }
+                };
+                var response = await client.GetItemAsync(request);
+                
+                if (response.Item.Count == 0)
+                {
+                    client.Dispose();
+                    throw new Exception("404");
+                }
+                post = JsonConvert.SerializeObject(new Post(response.Item));
+            }
+            return post;
         }
 
         public static async Task<string> GetHomeBagePostsAsync(string lastKey)
