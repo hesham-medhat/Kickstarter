@@ -18,9 +18,13 @@
         "tags": {
             "type": "array",
             "uniqueItems": true
+        },
+        "attachments": {
+            "type": "array",
+            "uniqueItems": true
         }
     },
-    "required": ["category", "title", "username", "content"]
+    "required": ["category", "title", "username", "content", "attachments"]
 }
 
 {

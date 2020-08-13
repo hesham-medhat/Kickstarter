@@ -6,6 +6,7 @@
 
   <ItemGroup>
     <PackageReference Include="AWSSDK.DynamoDBv2" Version="3.3.106.19" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.19" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.6">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

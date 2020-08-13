@@ -1,9 +1,15 @@
 using Kickstarter.Data;
 using Kickstarter.Data.Models;
+
+using Newtonsoft.Json;
 using Microsoft.EntityFrameworkCore;
+
+using Amazon;
 using Amazon.DynamoDBv2;
 using Amazon.DynamoDBv2.Model;
-using Newtonsoft.Json;
+using Amazon.S3;
+using Amazon.S3.Model;
+
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -50,6 +56,46 @@ namespace Kickstarter.Core.Services
                 categoriesList.Add(i.Category1);
             }
             return JsonConvert.SerializeObject(categoriesList);
+        }
+
+        /// <summary>
+        /// Creates a presigned url for S3 bucket
+        /// </summary>
+        /// <returns>Presigned url</returns>
+        public static string GeneratePreSignedURL()
+        {
+            const string bucketName = "kickstarter-attachments";
+            RegionEndpoint bucketRegion = RegionEndpoint.USEast1;
+            IAmazonS3 s3Client = new AmazonS3Client(bucketRegion);
+            const string objectKey = "{filename}";
+
+            var urlRequest = new GetPreSignedUrlRequest
+            {
+                BucketName = bucketName,
+                Key        = objectKey,
+                Verb       = HttpVerb.PUT,
+                Expires    = DateTime.Now.AddMinutes(5)
+            };
+
+            string url = s3Client.GetPreSignedURL(urlRequest);
+            return url;
+        }
+
+        /// <summary>
+        /// Creates a record in RDS attachments table for recently added attachment
+        /// </summary>
+        /// <returns>Status code</returns>
+        public static async Task<HttpStatusCode> S3ObjectCreated(string key)
+        {
+            using (var dbContext = new SQLDbContext())
+            {
+                await dbContext.Attachments.AddAsync(new Attachments
+                {
+                    Name = key
+                });
+                await dbContext.SaveChangesAsync();
+            }
+            return HttpStatusCode.OK;
         }
     }
 

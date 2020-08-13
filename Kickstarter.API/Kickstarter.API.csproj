@@ -6,8 +6,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="1.1.0" />
+    <PackageReference Include="Amazon.Lambda.S3Events" Version="1.1.0" />
     <PackageReference Include="Amazon.Lambda.Serialization.SystemTextJson" Version="2.0.0" />
     <PackageReference Include="Amazon.Lambda.APIGatewayEvents" Version="2.1.0" />
+    <PackageReference Include="AWSSDK.Lambda" Version="3.3.112" />
+    <PackageReference Include="AWSSDK.S3" Version="3.3.110.19" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
   </ItemGroup>
   <ItemGroup>

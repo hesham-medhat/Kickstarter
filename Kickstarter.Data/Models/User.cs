@@ -12,6 +12,7 @@ namespace Kickstarter.Data.Models
             FollowerToUserFollower = new HashSet<FollowerToUser>();
             FollowerToUserUser = new HashSet<FollowerToUser>();
             Post = new HashSet<Post>();
+            UserVotes = new HashSet<UserVotes>();
         }
 
         public int UserId { get; set; }
@@ -33,5 +34,6 @@ namespace Kickstarter.Data.Models
         public virtual ICollection<FollowerToUser> FollowerToUserFollower { get; set; }
         public virtual ICollection<FollowerToUser> FollowerToUserUser { get; set; }
         public virtual ICollection<Post> Post { get; set; }
+        public virtual ICollection<UserVotes> UserVotes { get; set; }
     }
 }

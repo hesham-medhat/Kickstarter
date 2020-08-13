@@ -1,14 +1,16 @@
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
 using Amazon.Lambda.Core;
 using Amazon.Lambda.APIGatewayEvents;
+using Amazon.Lambda.S3Events;
 
-using Kickstarter.Core.Services;
-using System;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
+
+using Kickstarter.Core.Services;
 
 // Assembly attribute to enable the Lambda function's JSON input to be converted into a .NET class.
 [assembly: LambdaSerializer(typeof(Amazon.Lambda.Serialization.SystemTextJson.DefaultLambdaJsonSerializer))]
@@ -483,7 +485,7 @@ namespace Kickstarter.API
         }
 
         /// <summary>
-        /// Get: /users/
+        /// POST: /users/
         /// sign user into the system
         /// A Lambda function to respond to HTTP POST methods from API Gateway
         /// Example payload: {
@@ -588,6 +590,120 @@ namespace Kickstarter.API
             {
                 response.StatusCode = (int)HttpStatusCode.NotFound;
                 response.Body = "User Not Found";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// POST: /posts/{postid}/votes/
+        /// Add vote to a post
+        /// A Lambda function to respond to HTTP POST methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> Vote (APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string postid = request.PathParameters["postid"];
+            string username = request.QueryStringParameters["username"];
+            string direction = request.QueryStringParameters["direction"];
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)await PostsService.Vote(postid, username, direction);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.NotFound;
+                response.Body = "Post Not Found";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// GET: /posts/{postid}/votes/
+        /// Add vote to a post
+        /// A Lambda function to respond to HTTP POST methods from API Gateway
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> GetVote (APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            string postid = request.PathParameters["postid"];
+            string username;
+            try
+            {
+            username = request.QueryStringParameters["username"];
+            } catch (Exception)
+            {
+                username = null;
+            }
+
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = 200;
+                response.Body = await PostsService.GetVote(postid, username);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.NotFound;
+                response.Body = "Post Not Found";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// GET: /utils/presignedurls/
+        /// Get a presigned url to upload an attachment to S3
+        /// A Lambda function to respond to HTTP POST methods from API Gateway
+        /// </summary>
+        public APIGatewayProxyResponse GeneratePreSignedURL (APIGatewayProxyRequest request, ILambdaContext context)
+        {
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = 200;
+                response.Body = UtilsService.GeneratePreSignedURL();
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Error Occured";
+            }
+
+            return response;
+        }
+
+        /// <summary>
+        /// A Lambda function to respond to S3 events when new objects created
+        /// </summary>
+        public async Task<APIGatewayProxyResponse> S3ObjectCreated (S3Event request, ILambdaContext context)
+        {
+            string key = request.Records[0].S3.Object.Key;
+            var response = new APIGatewayProxyResponse
+            {
+                Headers = new Dictionary<string, string> { { "Content-Type", "application/json" }, { "access-control-allow-origin", "*" }, { "Access-Control-Allow-Credentials", "true" } }
+            };
+
+            try
+            {
+                response.StatusCode = (int)await UtilsService.S3ObjectCreated(key);
+            }
+            catch (Exception)
+            {
+                response.StatusCode = (int)HttpStatusCode.UnprocessableEntity;
+                response.Body = "Error Occured";
             }
 
             return response;

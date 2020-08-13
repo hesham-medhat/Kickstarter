@@ -18,6 +18,7 @@ namespace Kickstarter.Data
         }
 
         public virtual DbSet<Address> Address { get; set; }
+        public virtual DbSet<Attachments> Attachments { get; set; }
         public virtual DbSet<Category> Category { get; set; }
         public virtual DbSet<Comment> Comment { get; set; }
         public virtual DbSet<Country> Country { get; set; }
@@ -28,6 +29,7 @@ namespace Kickstarter.Data
         public virtual DbSet<Tag> Tag { get; set; }
         public virtual DbSet<User> User { get; set; }
         public virtual DbSet<UserGroup> UserGroup { get; set; }
+        public virtual DbSet<UserVotes> UserVotes { get; set; }
         public virtual DbSet<Zone> Zone { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -104,6 +106,28 @@ namespace Kickstarter.Data
                     .HasConstraintName("address_ibfk_3");
             });
 
+            modelBuilder.Entity<Attachments>(entity =>
+            {
+                entity.HasKey(e => e.Name)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("attachments");
+
+                entity.HasIndex(e => e.CreatedAt)
+                    .HasName("created_at");
+
+                entity.Property(e => e.Name)
+                    .HasColumnName("name")
+                    .HasColumnType("varchar(80)")
+                    .HasCharSet("utf8mb4")
+                    .HasCollation("utf8mb4_0900_ai_ci");
+
+                entity.Property(e => e.CreatedAt)
+                    .HasColumnName("created_at")
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+            });
+
             modelBuilder.Entity<Category>(entity =>
             {
                 entity.HasKey(e => e.Category1)
@@ -155,6 +179,12 @@ namespace Kickstarter.Data
                 entity.Property(e => e.UserId)
                     .HasColumnName("user_id")
                     .HasColumnType("int(11)");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.Comment)
+                    .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("comment_ibfk_3");
 
                 entity.HasOne(d => d.User)
                     .WithMany(p => p.Comment)
@@ -263,9 +293,6 @@ namespace Kickstarter.Data
 
             modelBuilder.Entity<Post>(entity =>
             {
-                entity.HasKey(e => new { e.PostId, e.Username, e.Category })
-                    .HasName("PRIMARY");
-
                 entity.ToTable("post");
 
                 entity.HasIndex(e => e.Category)
@@ -280,15 +307,28 @@ namespace Kickstarter.Data
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
-                entity.Property(e => e.Username)
-                    .HasColumnName("username")
-                    .HasColumnType("varchar(20)")
+                entity.Property(e => e.Category)
+                    .IsRequired()
+                    .HasColumnName("category")
+                    .HasColumnType("varchar(50)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
-                entity.Property(e => e.Category)
-                    .HasColumnName("category")
-                    .HasColumnType("varchar(50)")
+                entity.Property(e => e.Date)
+                    .HasColumnName("date")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasColumnName("title")
+                    .HasColumnType("varchar(80)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasColumnName("username")
+                    .HasColumnType("varchar(20)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
@@ -308,34 +348,48 @@ namespace Kickstarter.Data
 
             modelBuilder.Entity<PostToTag>(entity =>
             {
-                entity.HasNoKey();
+                entity.HasKey(e => new { e.PostId, e.Tag })
+                    .HasName("PRIMARY");
 
                 entity.ToTable("post_to_tag");
 
+                entity.HasIndex(e => e.Tag)
+                    .HasName("tag");
+
                 entity.Property(e => e.PostId)
-                    .IsRequired()
                     .HasColumnName("post_id")
                     .HasColumnType("varchar(50)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
                 entity.Property(e => e.Tag)
-                    .IsRequired()
                     .HasColumnName("tag")
                     .HasColumnType("varchar(20)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.PostToTag)
+                    .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("post_to_tag_ibfk_1");
+
+                entity.HasOne(d => d.TagNavigation)
+                    .WithMany(p => p.PostToTag)
+                    .HasForeignKey(d => d.Tag)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("post_to_tag_ibfk_2");
             });
 
             modelBuilder.Entity<Tag>(entity =>
             {
-                entity.HasKey(e => e.Name)
+                entity.HasKey(e => e.Tag1)
                     .HasName("PRIMARY");
 
                 entity.ToTable("tag");
 
-                entity.Property(e => e.Name)
-                    .HasColumnName("name")
+                entity.Property(e => e.Tag1)
+                    .HasColumnName("tag")
                     .HasColumnType("varchar(20)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
@@ -369,7 +423,8 @@ namespace Kickstarter.Data
 
                 entity.Property(e => e.DateAdded)
                     .HasColumnName("date_added")
-                    .HasColumnType("datetime");
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                 entity.Property(e => e.Email)
                     .IsRequired()
@@ -395,7 +450,7 @@ namespace Kickstarter.Data
                 entity.Property(e => e.Password)
                     .IsRequired()
                     .HasColumnName("password")
-                    .HasColumnType("varchar(40)")
+                    .HasColumnType("varchar(60)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
 
@@ -448,6 +503,49 @@ namespace Kickstarter.Data
                     .HasColumnType("varchar(64)")
                     .HasCharSet("utf8")
                     .HasCollation("utf8_general_ci");
+            });
+
+            modelBuilder.Entity<UserVotes>(entity =>
+            {
+                entity.HasKey(e => new { e.Username, e.PostId })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("user_votes");
+
+                entity.HasIndex(e => e.PostId)
+                    .HasName("post_id");
+
+                entity.Property(e => e.Username)
+                    .HasColumnName("username")
+                    .HasColumnType("varchar(20)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.PostId)
+                    .HasColumnName("post_id")
+                    .HasColumnType("varchar(50)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.Property(e => e.Direction)
+                    .IsRequired()
+                    .HasColumnName("direction")
+                    .HasColumnType("varchar(5)")
+                    .HasCharSet("utf8")
+                    .HasCollation("utf8_general_ci");
+
+                entity.HasOne(d => d.Post)
+                    .WithMany(p => p.UserVotes)
+                    .HasForeignKey(d => d.PostId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("user_votes_ibfk_2");
+
+                entity.HasOne(d => d.UsernameNavigation)
+                    .WithMany(p => p.UserVotes)
+                    .HasPrincipalKey(p => p.Username)
+                    .HasForeignKey(d => d.Username)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("user_votes_ibfk_1");
             });
 
             modelBuilder.Entity<Zone>(entity =>
